@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: merchant-transaction-sync-service
+  profiles:
+    active: dev
+  cloud:
+    config:
+      uri: http://config.staging.etranzactng.net
+      label: development
+
