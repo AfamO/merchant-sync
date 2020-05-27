@@ -17,7 +17,7 @@ import static javax.persistence.TemporalType.TIMESTAMP;
 @NoArgsConstructor
 @Data
 @Entity
-@Table(name = "e_webconnectoclog")
+@Table(name = "e_webconnectoclog", schema = "ecarddb")
 @XmlRootElement
 @EqualsAndHashCode(callSuper = false)
 public class WebConnectTransactionLog  implements Serializable {

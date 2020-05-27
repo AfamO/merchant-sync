@@ -1,15 +1,19 @@
-package com.etz.merchanttransactionsync.db.config.payoutletnet;
+package com.etz.merchanttransactionsync.config.db.payoutletnet;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+
+import com.zaxxer.hikari.HikariDataSource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -26,22 +30,40 @@ import org.springframework.transaction.PlatformTransactionManager;
  */
 @Configuration
 @EnableJpaRepositories(
+        entityManagerFactoryRef = "payoutletDbEntityManagerFactory",
         basePackages = {"com.etz.merchanttransactionsync.repository.payoutletnet"}
 )
+@Slf4j
 public class PayoutletNetDbConfig {
-    @Primary
-    @Bean(name = "dataSource")
+
+    @Bean
     @ConfigurationProperties(prefix = "spring.second-datasource")
-    public DataSource dataSource() {
-        return DataSourceBuilder.create().build();
+    public DataSourceProperties payoutletDataSourceProperties() {
+        return new DataSourceProperties();
     }
 
-    @Primary
-    @Bean(name = "entityManagerFactory")
+    @Bean(name = "payoutletDataSource")
+    @ConfigurationProperties(prefix = "spring.second-datasource")
+    public DataSource dataSource() {
+        log.info("The RETRIEVED payoutletDb DataSource Url is ::{}", payoutletDataSourceProperties().getUrl());
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName(payoutletDataSourceProperties().getDriverClassName());
+        dataSource.setUrl(payoutletDataSourceProperties().getUrl());
+        dataSource.setUsername(payoutletDataSourceProperties().getUsername());
+        dataSource.setPassword(payoutletDataSourceProperties().getPassword());
+        return dataSource;
+        //return DataSourceBuilder.create().build();
+
+        //return payoutletDataSourceProperties().initializeDataSourceBuilder()
+          //      .type(HikariDataSource.class).build();
+    }
+
+
+    @Bean(name = "payoutletDbEntityManagerFactory")
     public LocalContainerEntityManagerFactoryBean
             entityManagerFactory(
                     EntityManagerFactoryBuilder builder,
-                    @Qualifier("dataSource") DataSource dataSource
+                    @Qualifier("payoutletDataSource") DataSource dataSource
             ) {
         return builder
                 .dataSource(dataSource)
@@ -50,10 +72,9 @@ public class PayoutletNetDbConfig {
                 .build();
     }
 
-    @Primary
-    @Bean(name = "transactionManager")
+    @Bean(name = "payoutletDbtransactionManager")
     public PlatformTransactionManager transactionManager(
-            @Qualifier("entityManagerFactory") EntityManagerFactory entityManagerFactory
+            @Qualifier("payoutletDbEntityManagerFactory") EntityManagerFactory entityManagerFactory
     ) {
         return new JpaTransactionManager(entityManagerFactory);
     }

@@ -87,6 +87,28 @@
 	  <version>2.5.2</version>
 	  <type>jar</type>
 	 </dependency>
+	 <dependency>
+	  <groupId>org.springframework.security.oauth</groupId>
+	  <artifactId>spring-security-oauth2</artifactId>
+	  <version>2.3.5.RELEASE</version>
+	  <type>jar</type>
+	 </dependency>
+         <dependency>
+	  <groupId>org.springframework.security</groupId>
+	  <artifactId>spring-security-jwt</artifactId>
+	  <version>1.0.9.RELEASE</version>
+	 </dependency>
+	 <dependency>
+	  <groupId>com.h2database</groupId>
+	  <artifactId>h2</artifactId>
+	  <version>1.4.200</version>
+	 </dependency>
+	 <dependency>
+	  <groupId>com.etz.checkmarx-fix</groupId>
+	  <artifactId>JpaResult</artifactId>
+	  <version>1.0</version>
+	  <type>jar</type>
+	 </dependency>
 	</dependencies>
 
 	<dependencyManagement>
