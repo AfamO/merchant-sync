@@ -11,10 +11,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import javax.sql.DataSource;
+import java.sql.SQLException;
 import java.util.Optional;
 
 /**
@@ -32,6 +36,7 @@ public class ClientMerchantDetailsRepository //extends JpaRepository<ClientMerch
     private EntityManager entityManager;
 
     public ClientMerchantDetails  findClientMerchantDetails(String clientId) {
+
         ClientMerchantDetails clientMerchantDetails = (ClientMerchantDetails) entityManager.find(ClientMerchantDetails.class, clientId);
         return  clientMerchantDetails;
 

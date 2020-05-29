@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.List;
 
-/*
+
 @Service
 public class WebConnectService {
 
@@ -20,4 +20,3 @@ public class WebConnectService {
     }
 }
 
- */

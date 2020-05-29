@@ -2,20 +2,25 @@ package com.etz.merchanttransactionsync.repository.payoutletnet;
 
 import com.etz.checkmarxfix.jparesult.ResultUtil;
 import com.etz.merchanttransactionsync.model.payoutletnet.PayOutletTransactionLog;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
+@Slf4j
 @Repository
 public class PayOutletTransactionRepository  {
 
@@ -41,6 +46,7 @@ public class PayOutletTransactionRepository  {
         typeQuery.setParameter("Ids", ids);
         return ResultUtil.fetchList(typeQuery);
     }
+
 
     //@Query("SELECT ptl from PayOutletTransactionLog ptl where ptl.transMerchantCode=:merchantCode")
     //List<PayOutletTransactionLog> findByUniqueMerchantCode(@Param("merchantCode") String merchantCode);

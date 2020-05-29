@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Data
 @Entity
-@Table( name = "p_transactions", catalog = "webdb",schema = "")
+@Table( name = "p_transactions")
 @XmlRootElement
 @EqualsAndHashCode(callSuper = false)
 @ToString

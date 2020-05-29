@@ -3,6 +3,7 @@ package com.etz.merchanttransactionsync.repository.ecarddb;
 import com.etz.checkmarxfix.jparesult.ResultUtil;
 import com.etz.merchanttransactionsync.domain.request.PaginationRequest;
 import com.etz.merchanttransactionsync.model.ecarddb.WebConnectTransactionLog;
+import org.hibernate.criterion.CriteriaQuery;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -22,7 +23,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Repository
-public class WebConnectTransactionRepository  {
+public class WebConnectTransactionRepository<T>  {
 
     @Autowired
     @Qualifier("ecardDbEntityManagerFactory")
@@ -44,33 +45,12 @@ public class WebConnectTransactionRepository  {
         return ResultUtil.fetchList(typeQuery);
     }
 
-    public <T> Page<T> findAllBy(Class<T> classz, Map<String, Object> filter, PaginationRequest page) {
-        AtomicReference<String> sqlQuery = new AtomicReference<>();
-        sqlQuery.set("select e from  " + classz.getSimpleName() + " e where e.");
 
-        filter.keySet().forEach(i -> sqlQuery.set(sqlQuery.get() + " " + i + " = :" + i + " AND"));
 
-        sqlQuery.set(sqlQuery.get().substring(0, sqlQuery.get().length() - 4));
-
-        TypedQuery<Long> countQuery = entityManager.createQuery(sqlQuery.get().replace("select e from", "select count(e) from"),
-                Long.class);
-        TypedQuery<T> typeQuery = entityManager.createQuery(sqlQuery.get(), classz);
-
-        filter.keySet().forEach(i -> {
-            typeQuery.setParameter(i, filter.get(i));
-            countQuery.setParameter(i, filter.get(i));
-        });
-
-        Long contentSize = countQuery.getSingleResult();
-        page.setSize(page.getSize() == 0 ? contentSize.intValue() : page.getSize());
-        if (contentSize.intValue() == 0) { // Is the returned result list entityManagerpty?
-            page.setSize(1); // then set the size to be 1, to avoid java.lang.IllegalArgumentException: Page
-            // size must not be less than one!
-        }
-        typeQuery.setFirstResult((page.getPage() - 1) * page.getSize()).setMaxResults(page.getSize());
-
-        return new PageImpl<>(typeQuery.getResultList(), PageRequest.of(page.getPage() - 1, page.getSize()),
-                contentSize);
+    public List<T> queryAllMerchantSpecificSuccessfullTransactionsNotSyncedYet(String terminalId, Date lastSyncedTime) {
+        //String query = "SELECT wctl FROM WebConnectTransactionLog wctl WHERE wctl.terminalId=:Terminal_Id AND wctl.response = '0' AND wctl.transDate BETWEEN :lastSyncedTime AND CURRENT_TIMESTAMP";
+        //TypedQuery<T> entityManager.createQuery()
+        return null;
     }
 
 

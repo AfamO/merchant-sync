@@ -47,22 +47,22 @@ public class MerchantTransactionSyncApplication  implements CommandLineRunner {
 
 	 */
     
-         @Autowired
+	 @Autowired
 	 PayOutletTransactionRepository payOutletTransactionRepository;
          
-         @Autowired
+	 @Autowired
 	 WebConnectTransactionRepository webConnectTransactionRepository;
 
 	 @Autowired
 	 CustomUserDetailsService customUserDetailsService;
 
-	@Autowired
-	ClientMerchantDetailsService clientMerchantDetailsService;
+	 @Autowired
+	 ClientMerchantDetailsService clientMerchantDetailsService;
 
 
 
-        @Value("${app.data.sync-interval.in.milliseconds}")
-        private String interval;
+	@Value("${app.data.sync-interval.in.milliseconds}")
+	private String interval;
 
 	public static void main(String[] args) {
 		SpringApplication.run(MerchantTransactionSyncApplication.class, args);
@@ -90,9 +90,8 @@ public class MerchantTransactionSyncApplication  implements CommandLineRunner {
 		log.info("The retrieved  Single payOutletTransactionLog  Data ::{}", payOutletTransactionRepository.findOne(PayOutletTransactionLog.class,1L));
 		Set<Long> idSets = new HashSet<>();
 		idSets.add(1L);idSets.add(2L);idSets.add(3L);idSets.add(4L);
-		List<PayOutletTransactionLog > payOutletTransactionLogList = payOutletTransactionRepository.findAllById(PayOutletTransactionLog.class, idSets);
+		//List<PayOutletTransactionLog > payOutletTransactionLogList = payOutletTransactionRepository.findAllById(PayOutletTransactionLog.class, idSets);
 		//log.info("The retrieved  payOutletTransactionLog  Data  List::{}", payOutletTransactionLogList);
-
 
 
 	}

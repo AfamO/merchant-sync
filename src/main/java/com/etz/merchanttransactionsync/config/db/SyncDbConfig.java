@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.etz.merchanttransactionsync.config.db.ecarddb;
+package com.etz.merchanttransactionsync.config.db;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
@@ -11,6 +11,7 @@ import javax.sql.DataSource;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -25,8 +26,6 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import java.sql.DriverManager;
-
 /**
  *
  * @author afam.okonkwo
@@ -34,49 +33,48 @@ import java.sql.DriverManager;
 @Configuration
 //@EnableTransactionManagement
 @EnableJpaRepositories(
-        entityManagerFactoryRef = "ecardDbEntityManagerFactory",
-        basePackages = {"com.etz.merchanttransactionsync.repository.ecarddb"}
+        entityManagerFactoryRef = "syncDbEntityManagerFactory",
+        basePackages = {"com.etz.merchanttransactionsync.repository.syncdb"}
 )
 @Slf4j
-public class EcardDbConfig {
+public class SyncDbConfig {
+    @Value("${spring.third-datasource.url}")
+    private String url;
 
     @Bean
-    @ConfigurationProperties(prefix = "spring.datasource")
-    public DataSourceProperties ecardbDataSourceProperties() {
+    @Primary
+    @ConfigurationProperties(prefix = "spring.third-datasource")
+    public DataSourceProperties syncDataSourceProperties() {
         return new DataSourceProperties();
     }
 
-    @Bean(name = "ecardDbDataSource")
-    @ConfigurationProperties(prefix = "spring.datasource")
+    @Primary
+    @Bean(name = "syncDbDataSource")
+    @ConfigurationProperties(prefix = "spring.third-datasource")
     public DataSource dataSource() {
-        log.info("The RETRIEVED ecardDb DataSource Url is ::{}", ecardbDataSourceProperties().getUrl());
-        //return DataSourceBuilder.create().build();
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName(ecardbDataSourceProperties().getDriverClassName());
-        dataSource.setUrl(ecardbDataSourceProperties().getUrl());
-        dataSource.setUsername(ecardbDataSourceProperties().getUsername());
-        dataSource.setPassword(ecardbDataSourceProperties().getPassword());
-        return dataSource;
-        //return ecardbDataSourceProperties().initializeDataSourceBuilder()
-          //      .type(HikariDataSource.class).build();
-    }
-
-    @Bean(name = "ecardDbEntityManagerFactory")
-    public LocalContainerEntityManagerFactoryBean
-            ecardDbEntityManagerFactory(
-                    EntityManagerFactoryBuilder builder,
-                    @Qualifier("ecardDbDataSource") DataSource dataSource
-            ) {
-        return builder
-                .dataSource(dataSource)
-                .packages("com.etz.merchanttransactionsync.model.ecarddb")
-                .persistenceUnit("ecarddb")
+        log.info("The RETRIEVED syncDb DataSource Url is ::{}", syncDataSourceProperties().getUrl());
+        return syncDataSourceProperties().initializeDataSourceBuilder()
                 .build();
     }
 
-    @Bean(name = "ecardDbTransactionManager")
+    @Primary
+    @Bean(name = "syncDbEntityManagerFactory")
+    public LocalContainerEntityManagerFactoryBean
+            syncDbEntityManagerFactory(
+                    EntityManagerFactoryBuilder builder,
+                    @Qualifier("syncDbDataSource") DataSource dataSource
+            ) {
+        return builder
+                .dataSource(dataSource)
+                .packages("com.etz.merchanttransactionsync.model.syncdb")
+                .persistenceUnit("trans_sync_db")
+                .build();
+    }
+
+    @Primary
+    @Bean(name = "syncDbTransactionManager")
     public PlatformTransactionManager ecardDbTransactionManager(
-            @Qualifier("ecardDbEntityManagerFactory") EntityManagerFactory ecardDbEntityManagerFactory
+            @Qualifier("syncDbEntityManagerFactory") EntityManagerFactory ecardDbEntityManagerFactory
     ) {
         return new JpaTransactionManager(ecardDbEntityManagerFactory);
     }

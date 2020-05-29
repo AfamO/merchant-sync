@@ -1,4 +1,4 @@
-package com.etz.merchanttransactionsync.config.db.payoutletnet;
+package com.etz.merchanttransactionsync.config.db;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +16,10 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -37,25 +40,26 @@ import org.springframework.transaction.PlatformTransactionManager;
 public class PayoutletNetDbConfig {
 
     @Bean
-    @ConfigurationProperties(prefix = "spring.second-datasource")
+    @ConfigurationProperties(prefix = "spring.fourth-datasource")
     public DataSourceProperties payoutletDataSourceProperties() {
         return new DataSourceProperties();
     }
 
     @Bean(name = "payoutletDataSource")
-    @ConfigurationProperties(prefix = "spring.second-datasource")
+    @ConfigurationProperties(prefix = "spring.fourth-datasource")
     public DataSource dataSource() {
+        //com.sybase.jdbc4.jdbc.SybDriver;
         log.info("The RETRIEVED payoutletDb DataSource Url is ::{}", payoutletDataSourceProperties().getUrl());
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName(payoutletDataSourceProperties().getDriverClassName());
-        dataSource.setUrl(payoutletDataSourceProperties().getUrl());
-        dataSource.setUsername(payoutletDataSourceProperties().getUsername());
-        dataSource.setPassword(payoutletDataSourceProperties().getPassword());
-        return dataSource;
-        //return DataSourceBuilder.create().build();
+        try {
+            Connection connection = DriverManager.getConnection("jdbc:sybase:Tds:172.17.10.101:5002?ServiceName=PAYOUTLETDB","sa",null);
+            log.info("Sybase Connection MetaData is ::{}", connection.getMetaData());
+        } catch (SQLException e) {
+            log.info("Sybase Connection Error is ::{}", e.getLocalizedMessage());
+            e.printStackTrace();
+        }
 
-        //return payoutletDataSourceProperties().initializeDataSourceBuilder()
-          //      .type(HikariDataSource.class).build();
+        return payoutletDataSourceProperties().initializeDataSourceBuilder()
+                .type(HikariDataSource.class).build();
     }
 
 
@@ -65,6 +69,7 @@ public class PayoutletNetDbConfig {
                     EntityManagerFactoryBuilder builder,
                     @Qualifier("payoutletDataSource") DataSource dataSource
             ) {
+                log.info("The RETRIEVED payoutletDb DataSource Url1 is ::{}", payoutletDataSourceProperties().getUrl());
         return builder
                 .dataSource(dataSource)
                 .packages("com.etz.merchanttransactionsync.model.payoutletnet")
@@ -72,10 +77,11 @@ public class PayoutletNetDbConfig {
                 .build();
     }
 
-    @Bean(name = "payoutletDbtransactionManager")
+    @Bean(name = "transactionManager")
     public PlatformTransactionManager transactionManager(
             @Qualifier("payoutletDbEntityManagerFactory") EntityManagerFactory entityManagerFactory
     ) {
+        log.info("The RETRIEVED payoutletDb DataSource Url2 is ::{}", payoutletDataSourceProperties().getUrl());
         return new JpaTransactionManager(entityManagerFactory);
     }
 
